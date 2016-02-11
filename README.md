@@ -8,6 +8,7 @@ Code analysis consists of extracting lexical content from source code files, ana
 
 
 In this first project we will build and test a lexical scanner in C++ that consists of two packages:
+
 1. Tokenizer
 Extracts words, called tokens, from a stream of characters. Token boundaries are white-space characters, transitions between alphanumeric and punctuator characters, and comment and string boundaries. Certain classes of punctuator characters belong to single character or two character tokens so they require special rules for extraction.
 
@@ -18,11 +19,13 @@ groups tokens into sets, each of which contain all the information needed to ana
 Build:
 ------
 To generate a .bat file which will run this program :-
+
 1. To use this solution Visual Studio (2015 or newer) will be required. 
 2. Run compile.bat through Visual Studio Developer Console to generate build the solution.
 3. To execute the program again using Visual Studio Developer Console execute run.bat
 
 Standard Visual Studio IDE Build :-
+
 1. Set the default project and define appropriate variable to include the main of the program which is supposed to be executed. Also disable other main() by commenting out the defined variable.
 2. Execute the program "using start without debugging"
 
