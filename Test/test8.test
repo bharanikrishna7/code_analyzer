@@ -1,0 +1,4 @@
+ for (int counter = 1; counter <= a; counter++)
+ {
+     cout<<"Execute "<<counter<<" time"<<endl;
+ }

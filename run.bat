@@ -1,0 +1,2 @@
+chdir
+.\Debug\TestExec.exe
