@@ -1,84 +1,221 @@
-///////////////////////////////////////////////////////////////////////
-// SemiExpression.cpp - collect tokens for analysis                  //
-// Version:     1.0                                                  //
-// Language:    C++, Visual Studio 2015                              //
-// Application: Parser component, CSE687 - Object Oriented Design    //
-// Author:      Venkata Chekuri, SUID : 356579351                    //
-//              vbchekur@syr.edu                                     //
-///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// SemiExpression.cpp - collect tokens for analysis							//
+// Version :	  1.0                                                       //
+// Language:      Visual C++, Visual Studio 2015							//
+// Platform:      MSI GE62 2QD, Core-i7, Windows 10							//
+// Application:   Code Parser with AST										//
+// Author:		  Venkata Chekuri, SUID : 356579351							//
+//                vbchekur@syr.edu											//
+//////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <exception>
-#include <algorithm> 
-#include <functional> 
 #include <cctype>
 #include "SemiExp.h"
 #include "../Tokenizer/Tokenizer.h"
 
 using namespace Scanner;
+using Token = std::string;
 
+///////////////////////////////////////////////////////////
+// initialize semiExpression with existing toker reference 
 SemiExp::SemiExp(Toker* pToker) : _pToker(pToker) {}
 
-/* This function reads the input stream and loads the tokens to _tokens vector
- * ignoreFor variable is used to check for the condition of for loop. If there
- * is a for loop then 2 ';' symbols are ignored while checking for semi-expression
- * ending condition.
-*/
-bool SemiExp::get(bool clear)
+///////////////////////////////////////////////
+// returns position of tok in semiExpression
+size_t SemiExp::find(const std::string& tok)
+{
+  for (size_t i = 0; i < length(); ++i)
+    if (_tokens[i] == tok)
+      return i;
+  return length();
+}
+
+///////////////////////////////////////////
+// push token onto back end of SemiExp 
+void SemiExp::push_back(const std::string& tok)
+{
+  _tokens.push_back(tok);
+}
+
+///////////////////////////////////////////
+// removes token passed as argument 
+bool SemiExp::remove(const std::string& tok)
+{
+  std::vector<Token>::iterator iter = _tokens.begin();
+  while (iter != _tokens.end())
+  {
+    if (tok == *iter)
+    {
+      _tokens.erase(iter);
+      return true;
+    }
+    ++iter;
+  }
+  return false;
+}
+
+/////////////////////////////////////////////////////
+// removes token at nth position of semiExpression 
+bool SemiExp::remove(size_t n)
+{
+  if (n < 0 || n >= length())
+    return false;
+  std::vector<Token>::iterator iter = _tokens.begin() + n;
+  _tokens.erase(iter);
+  return true;
+}
+
+///////////////////////////////////////////////////
+// removes newlines from front of semiExpression
+void SemiExp::trimFront()
+{
+  while (length() > 1)
+  {
+    if (_tokens[0] == "\n")
+      remove(0);
+    else
+      break;
+  }
+}
+
+///////////////////////////////////////////
+// transform all tokens to lower case
+void SemiExp::toLower()
+{
+  for (auto& token : _tokens)
+  {
+    for (auto& chr : token)
+    {
+      chr = tolower(chr);
+    }
+  }
+}
+
+///////////////////////////////////////////
+// clear contents of SemiExp
+void SemiExp::clear()
+{
+  _tokens.clear();
+}
+
+///////////////////////////////////////////
+// is this token a comment?
+bool SemiExp::isComment(const std::string& tok)
+{
+  return _pToker->isComment(tok);
+}
+
+///////////////////////////////////////////////
+// return count of newlines retrieved by Toker
+size_t SemiExp::currentLineCount()
 {
   if (_pToker == nullptr)
+    return 0;
+  /* 
+   *  Tokenizer has collected first non-state char when exiting eatChars()
+   *  so we need to subtract 1 from the Toker's line count.
+   */
+  return _pToker->currentLineCount() - 1;
+}
+
+///////////////////////////////////////////
+// helps folding for expressions
+bool SemiExp::isSemiColonBetweenParens()
+{
+  size_t openParenPosition = find("(");
+  size_t semiColonPosition = find(";");
+  size_t closedParenPosition = find(")");
+
+  if (openParenPosition < semiColonPosition && semiColonPosition < closedParenPosition)
+    return true;
+  return false;
+}
+
+////////////////////////////////////////////////////////
+// fills semiExpression collection from attached toker
+bool SemiExp::get(bool clear)
+{
+  bool ok = getHelper(clear);
+
+  if (hasFor && isSemiColonBetweenParens())
+  {
+    getHelper(false);  // add test for loop termination
+    getHelper(false);  // add counter increment
+  }
+  return ok;
+}
+
+///////////////////////////////////////////
+// is token a SemiExpression terminator?
+bool SemiExp::isTerminator(const std::string& token)
+{
+  if (token == "{" || token == "}" || token == ";")
+    return true;
+
+  if (token == "\n")
+  {
+    trimFront();
+    if (_tokens[0] == "#")
+      return true;
+  }
+
+  if (length() < 2)
+    return false;
+
+  if (token == ":" && length() > 0 && _tokens[length() - 2] == "public")
+    return true;
+
+  if (token == ":" && length() > 0 && _tokens[length() - 2] == "protected")
+    return true;
+
+  if (token == ":" && length() > 0 && _tokens[length() - 2] == "private")
+    return true;
+
+  return false;
+}
+
+//////////////////////////////////////////////////////////
+// does all the work of collecting tokens for collection 
+bool SemiExp::getHelper(bool clear)
+{
+  hasFor = false;
+  if (_pToker == nullptr)
     throw(std::logic_error("no Toker reference"));
-  _tokens.clear();
-  index = -1;
-  int ignoreFor = 2;
+  if(clear)
+    _tokens.clear();
   while (true)
   {
     std::string token = _pToker->getTok();
     if (token == "")
       break;
     _tokens.push_back(token);
-	index++;
-	if (_tokens.back() == "for")
-		ignoreFor = 0;
-	if (_tokens[index] == ";" && ignoreFor > 1)
-	{
-		ignoreFor++;
-		return true;
-	}
-	if (token == ":" && _tokens.size() > 1)
-	{
-		if (_tokens[index - 1] == "public" || _tokens[index - 1] == "private" || _tokens[index - 1] == "protected")
-			return true;
-	}
-	if (token == "{" || token == "}" || token == std::string(1, static_cast<char>(23)))
-		return otherGetComp(token);
+
+    if (token == "for")
+      hasFor = true;
+    
+    if (isTerminator(token))
+      return true;
   }
   return false;
 }
 
-// Function to reduce the size of the get() function.
-bool SemiExp::otherGetComp(std::string token)
+///////////////////////////////////////////
+// read only indexing of SemiExpression
+Token SemiExp::operator[](size_t n) const
 {
-	if (token == "{")
-		return true;
-
-	if (token == "}")
-		return true;
-
-	if (token == std::string(1, static_cast<char>(23)))
-	{
-		_tokens.pop_back();
-		index--;
-		return true;
-	}
-
-	return false;
+  if (n < 0 || n >= _tokens.size())
+    throw(std::invalid_argument("index out of range"));
+  return _tokens[n];
 }
 
-// Returns a token at a specific index
+///////////////////////////////////////////
+// writeable indexing of SemiExpression
 Token& SemiExp::operator[](size_t n)
 {
   if (n < 0 || n >= _tokens.size())
@@ -86,188 +223,63 @@ Token& SemiExp::operator[](size_t n)
   return _tokens[n];
 }
 
-// Returns the size of the vector _tokens
+//////////////////////////////////////////////
+// return number of tokens in semiExpression
 size_t SemiExp::length()
 {
   return _tokens.size();
 }
 
-/* Returns the index of an element which is asked to be found.
- * If found correct index will be returned and if not found then
- * the size of the vector is returned.
-*/
-size_t SemiExp::find(const std::string& findTok)
-{
-	size_t index = 0;
-	for (; index < _tokens.size(); index++)
-	{
-		if (_tokens[index].compare(findTok) == 0)
-			return index;
-	}
-	
-	// Since size_t cannot contain -ve values hence setting index to
-	// size of the vector _tokens.
-	return index;
-}
-
-/* Having this function will enable external methods to add elements to
- * _tokens without directly exposing it.
-*/
-void SemiExp::push_back(const std::string& tok)
-{
-	_tokens.push_back(tok);
-}
-
-bool SemiExp::remove(const std::string& tok)
-{
-	if (std::find(_tokens.begin(), _tokens.end(), tok) != _tokens.end())
-	{
-		_tokens.erase(std::find(_tokens.begin(), _tokens.end(), tok));
-		return true;
-	}
-	// Didnot erase that element since it was not found in the vector _tokens
-	return false;
-}
-
-/* Removes the element at index which is passed to the function. If the index is
- * out of bounds then nothing is removed and this function will return false to 
- * notify no elemet has been removed.
- * Also here we are assuming that the index goes from 0 to _tokens.size()-1
-*/
-bool SemiExp::remove(size_t index)
-{
-	if (index >= 0 && index <= _tokens.size())
-	{
-		_tokens.erase(_tokens.begin() + index);
-		return true;
-	}
-	// Didnot erase that element since it was not found in the vector _tokens
-	return false;
-}
-
-// This function will remove all the leading whitespaces of all the tokens in the vector _tokens
-void SemiExp::trimFront()
-{
-	for (size_t index = 0; index < _tokens.size(); index++)
-	{ 
-		std::string tok = _tokens[index];
-		tok = tok.substr(tok.find_first_not_of('\n'));
-		tok = tok.substr(tok.find_first_not_of('\r'));
-		tok = tok.substr(tok.find_first_not_of('\t'));
-		tok = tok.substr(tok.find_first_not_of(' '));
-
-		_tokens[index] = tok;
-	}
-}
-
-// This function will remove all the elements present in the vector _tokens
-void SemiExp::clear()
-{
-	_tokens.clear();
-}
-
-/* This function will change the case of all the characters (alphabets) in all the _tokens
- * to lower case
-*/
-void SemiExp::toLower()
-{
-	for (size_t index = 0; index < _tokens.size(); index++)
-	{
-		std::string tok = _tokens[index];
-		std::transform(tok.begin(), tok.end(), tok.begin(), ::tolower);
-		_tokens[index] = tok;
-	}
-}
-
-
-// Prints all the tokens in a semi-expressions
+///////////////////////////////////////////
+// display collection tokens on console
 std::string SemiExp::show(bool showNewLines)
 {
-	std::string accum = std::string("");
-	accum.append("\n  ");
-	if (showNewLines)
-	{
-		for (auto token : _tokens)
-			if (token != "\n")
-				accum.append(token + "\n  ");
-			else
-				accum.append("\\n\n ");
-		return accum;
-	}
-
-	for (auto token : _tokens)
-		if (token != "\n")
-			accum.append(token + "\n  ");
-	accum.append("\n");
-	return accum;
+  std::ostringstream out;
+  out << "\n  ";
+  for (auto token : _tokens)
+    if(token != "\n" || showNewLines == true)
+      out << token << " ";
+  out << "\n";
+  return out.str();
 }
 
-/* Verifies whether a string is only whitespaces. This is used to make sure
- * no semi-expression which has only whitespace tokens are not printed when
- * show() is called
-*/
-bool SemiExp::isNotOnlySpace(std::string aString)
-{
-	std::string checkOnlySpaces = aString.substr(aString.find_first_not_of(' '), aString.find_last_not_of(' '));
-	checkOnlySpaces = checkOnlySpaces.substr(checkOnlySpaces.find_first_not_of('\n'), checkOnlySpaces.find_last_not_of('\n'));
-	checkOnlySpaces = checkOnlySpaces.substr(checkOnlySpaces.find_first_not_of('\t'), checkOnlySpaces.find_last_not_of('\t'));
-	checkOnlySpaces = checkOnlySpaces.substr(checkOnlySpaces.find_first_not_of('\r'), checkOnlySpaces.find_last_not_of('\r'));
-
-	if (checkOnlySpaces == "")
-		return false;
-	else
-		return true;
-}
-
-// No function in current release.
-bool SemiExp::merge(const std::string& firstTok, const std::string& secondTok)
-{
-	return true;
-}
-
-//#define TEST_SEMIEXPR
-#ifdef TEST_SEMIEXPR
-
+#ifdef TEST_SEMIEXP
+/////////////////////
+// TEST STUB
 int main()
 {
+  std::cout << "\n  Testing SemiExp class";
+  std::cout << "\n =======================\n";
+
   Toker toker;
-  std::string fileSpec = "../Tokenizer/Tokenizer.cpp";
+  //std::string fileSpec = "../Tokenizer/Tokenizer.cpp";
+  std::string fileSpec = "SemiExp.cpp";
+
   std::fstream in(fileSpec);
   if (!in.good())
   {
     std::cout << "\n  can't open file " << fileSpec << "\n\n";
     return 1;
   }
+  else
+  {
+    std::cout << "\n  processing file \"" << fileSpec << "\"\n";
+  }
   toker.attach(&in);
 
   SemiExp semi(&toker);
   while(semi.get())
   {
-    std::string tokensString = semi.show();
-	// Making sure that no empty semi - expressions are printed
-	if (semi.isNotOnlySpace(tokensString))
-	{
-		std::cout << "\n  -- semiExpression --";
-		std::cout << tokensString;
-	}
+    std::cout << "\n  -- semiExpression -- at line number " << semi.currentLineCount();
+    std::cout << semi.show();
   }
-
-  /*
-     May have collected tokens, but reached end of stream
-     before finding SemiExp terminator.
-  */
+  /* May have collected tokens, but reached end of stream before finding SemiExp terminator */
   if (semi.length() > 0)
   {
-	  std::string tokensString = semi.show();
-	  // Making sure that no empty semi expressions are printed
-	  if (semi.isNotOnlySpace(tokensString))
-	  {
-		  std::cout << "\n  -- semiExpression --";
-		  std::cout << tokensString;
-	  }
-	std::cout << "\n\n";
+    std::cout << "\n  -- semiExpression --";
+    semi.show(true);
   }
-
+  std::cout << "\n\n";
   return 0;
 }
 #endif

@@ -23,10 +23,11 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SemiExp</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>SemiExpression</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -87,7 +88,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;TEST_SEMIEXP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../../Tokenizer</AdditionalIncludeDirectories>
     </ClCompile>
@@ -147,16 +148,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Tokenizer\Tokenizer.cpp" />
+    <ClCompile Include="..\Utilities\Utilities.cpp" />
     <ClCompile Include="SemiExp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ITokCollection.h" />
+    <ClInclude Include="..\Tokenizer\Tokenizer.h" />
+    <ClInclude Include="..\Utilities\Utilities.h" />
+    <ClInclude Include="itokcollection.h" />
     <ClInclude Include="SemiExp.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Tokenizer\Tokenizer.vcxproj">
-      <Project>{fd63ad3d-4a25-4f5c-bd43-1e19192357f2}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

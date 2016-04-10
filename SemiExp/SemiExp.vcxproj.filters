@@ -18,12 +18,24 @@
     <ClCompile Include="SemiExp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Tokenizer\Tokenizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\Utilities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SemiExp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ITokCollection.h">
+    <ClInclude Include="..\Tokenizer\Tokenizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\Utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="itokcollection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

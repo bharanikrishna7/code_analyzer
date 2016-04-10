@@ -1,2 +1,3 @@
-chdir
-.\Debug\TestExec.exe
+cd ./Debug
+.\ParallelDependencyExcec.exe
+cd ..
