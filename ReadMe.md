@@ -2,6 +2,7 @@ INTRODUCTION:
 -------------
 Code analysis consists of extracting lexical content from source code files, ana
 In this project we will build and test a dependency analyzer in C++ that consists of following packages:
+
 1. Tokenizer :
 Extracts words, called tokens, from a stream of characters. Token boundaries are white-space characters, transitions between alphanumeric and punctuator characters, and comment and string boundaries. Certain classes of punctuator characters belong to single character or two character tokens so they require special rules for extraction.
 
