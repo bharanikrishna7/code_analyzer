@@ -73,14 +73,14 @@ Standard Visual Studio IDE Build :-
 
 LIMITATIONS OF PROJECT:
 -----------------------
-1. This project will not work when there are multiple types (function / class / alias / typedef / struct / enum) with same name.
-2. Will not understand method overloading.
-3. Will give false dependencies when a token matching the entry in Final Type Table is found 
+1. This project will not be able to show correct dependent file when there are classes/typedef/enums/structs/aliases with same name. Previously there was a good possibility of showing incorrect dependent files.
+2. Will not understand method overloading. But will still be able to tell dependant file.
+3. Will show false dependencies along with actual dependencies when a token matching the entry in Final Type Table is found 
    ex : Suppose final type table has an entry {A , namespace, global, file1.cpp }
 		Now if file2.cpp has a semi-expression => int A;
 		
 		This program will say file2.cpp depends on file1.cpp which is incorrect. This happens since
-		it finds a matching token and it doesnot (no functions present) analyze what type of token it
+		it finds a matching token and it doesnot (no functions present) analyze what type of token it has
 		got.
 
 		
