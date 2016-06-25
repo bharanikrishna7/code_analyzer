@@ -37,13 +37,13 @@ This package will provide classes like StringHelper, Timer etc to help other pac
 9. CodeAnalyzer :
 This package uses all other packages to analyze files - generate final type table - perform dependency analysis for each file & finally display the result to console.
 
-VERBOSE Mode:
+VERBOSE MODE:
 -------------
 This feature is built into the project to have a better visual understanding of what is actually happening when the program is being executed. It along with Thread Debugger helps the users to figure out how the data is being processed and if there are any bugs this will help in understanding where the code breaks.
 
 Can be set in most packages using function => setVerbose(true);
 
-Build:
+BUILD:
 ------
 To generate a .bat file which will run this program :-
 
@@ -73,4 +73,3 @@ FOR TESTING:
 -------------
 1. The test files are placed in Test folder.
 2. For better understanding use VERBOSE Mode.
-   Can be done by setting VERBOSE variable to true in ParallelDependencyExec
