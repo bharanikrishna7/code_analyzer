@@ -48,12 +48,12 @@
  *
  * Maintenance History:
  * --------------------
- * ver 1.0 : 17 March 16
- * - first release
- *
  * ver 1.1 : 1 April 2016
  * - Moved VERBOSE to public
  * - Added rules to detect enum, alias and typedef
+ *
+ * ver 1.0 : 17 March 16
+ * - first release
  *
  * ToDo:
  * -----
@@ -70,12 +70,13 @@
 
 #include <fstream>
 #include "Parser.h"
-#include "../SemiExp/SemiExp.h"
-#include "../Tokenizer/Tokenizer.h"
 #include "ActionsAndRules.h"
+#include "../Tokenizer/Tokenizer.h"
+#include "../SemiExpression/SemiExp.h"
 
-///////////////////////////////////////////////////////////////
-// build parser that writes its output to console
+
+////////////////////////////////////////////////////
+/* build parser that writes its output to console */
 class ConfigParseToConsole : IBuilder
 {
 public:
@@ -99,6 +100,7 @@ public:
   
   // Verbose Variable. Set it to true to attach print actions.
   bool VERBOSE = false;
+  void setVerbose(bool paramV);
 private:
   // Builder must hold onto all the pieces
   std::ifstream* pIn;

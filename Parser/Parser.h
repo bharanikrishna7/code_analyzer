@@ -53,11 +53,11 @@
  */
 
 #include <string>
-#include <iostream>
 #include <vector>
-#include "../SemiExp/itokcollection.h"
+#include <iostream>
+#include "../SemiExpression/ITokCollection.h"
 
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 // abstract base class for parsing actions
 //   - when a rule succeeds, it invokes any registered action
 class Parser;
@@ -69,7 +69,7 @@ public:
   virtual Parser* Build()=0;
 };
 
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 // abstract base class for parsing actions
 //   - when a rule succeeds, it invokes any registered action
 class IAction

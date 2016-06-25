@@ -19,8 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{77BE9964-7862-4D05-AFF0-B42718AAE386}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{5C2FBB20-1531-4E36-9FBE-C30E32BC7179}</ProjectGuid>
     <RootNamespace>Parser</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -29,27 +28,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -69,109 +68,86 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;TEST_PARSER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TEST_PARSER</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\AST\AST.cpp" />
-    <ClCompile Include="..\FileSystem-Windows\FileSystemDemo\FileSystem.cpp" />
-    <ClCompile Include="..\ScopeStack\ScopeStack.cpp" />
-    <ClCompile Include="..\SemiExp\SemiExp.cpp" />
-    <ClCompile Include="..\Tokenizer\Tokenizer.cpp" />
-    <ClCompile Include="..\TypeTable\TypeTable.cpp" />
-    <ClCompile Include="..\Utilities\Utilities.cpp" />
-    <ClCompile Include="ActionsAndRules.cpp" />
-    <ClCompile Include="ConfigureParser.cpp" />
-    <ClCompile Include="Parser.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\AST\AST.h" />
-    <ClInclude Include="..\FileSystem-Windows\FileSystemDemo\FileSystem.h" />
-    <ClInclude Include="..\ScopeStack\ScopeStack.h" />
-    <ClInclude Include="..\SemiExp\itokcollection.h" />
-    <ClInclude Include="..\SemiExp\SemiExp.h" />
+    <ClInclude Include="..\SemiExpression\ITokCollection.h" />
+    <ClInclude Include="..\SemiExpression\SemiExp.h" />
+    <ClInclude Include="..\Temp\FileSystem.h" />
     <ClInclude Include="..\Tokenizer\Tokenizer.h" />
-    <ClInclude Include="..\TypeTable\TypeTable.h" />
     <ClInclude Include="..\Utilities\Utilities.h" />
     <ClInclude Include="ActionsAndRules.h" />
     <ClInclude Include="ConfigureParser.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="ScopeStack.h" />
+    <ClInclude Include="TypeTable.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\ReadMe.txt" />
+    <ClCompile Include="..\AST\AST.cpp" />
+    <ClCompile Include="..\SemiExpression\SemiExp.cpp" />
+    <ClCompile Include="..\Temp\FileSystem.cpp" />
+    <ClCompile Include="..\Tokenizer\Tokenizer.cpp" />
+    <ClCompile Include="..\Utilities\Utilities.cpp" />
+    <ClCompile Include="ActionsAndRules.cpp" />
+    <ClCompile Include="ConfigureParser.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="ScopeStack.cpp" />
+    <ClCompile Include="TypeTable.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AST\AST.vcxproj">
+      <Project>{4ac6a30a-b481-43dc-a4b0-7122b66d2401}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\SemiExpression\SemiExpression.vcxproj">
+      <Project>{306dbeb2-9496-4236-8794-3920e24858fc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Tokenizer\Tokenizer.vcxproj">
+      <Project>{e5e86a34-4104-46f5-a6ac-e8a9af87084f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.vcxproj">
+      <Project>{4ba18aab-21fb-4b5e-9d1b-95aca81a052a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

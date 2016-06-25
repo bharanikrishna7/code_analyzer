@@ -12,8 +12,8 @@
 Repository* Repository::instance = nullptr;
 
 #ifdef TEST_ACTIONSANDRULES
-////////////////////////////////////////////////
-// TEST STUB
+///////////////
+/* TEST STUB */
 #include <iostream>
 #include "Tokenizer.h"
 #include "SemiExpression.h"

@@ -1,3 +1,3 @@
 cd ./Debug
-.\ParallelDependencyExcec.exe
+.\CodeAnalyzer.exe
 cd ..

@@ -1,1 +1,1 @@
-devenv Project3.sln /rebuild debug
+devenv CodeAnalyzer.sln /rebuild debug

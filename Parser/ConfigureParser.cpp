@@ -9,14 +9,14 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
+
 #include "Parser.h"
-#include "../SemiExp/SemiExp.h"
-#include "../Tokenizer/Tokenizer.h"
-#include "ActionsAndRules.h"
 #include "ConfigureParser.h"
 
 using namespace Scanner;
-//----< destructor releases all parts >------------------------------
+
+//////////////////////////////////////
+/* Destructor to releases all parts */
 ConfigParseToConsole::~ConfigParseToConsole()
 {
   // when Builder goes out of scope, everything must be deallocated
@@ -57,8 +57,8 @@ ConfigParseToConsole::~ConfigParseToConsole()
   delete pIn;
 }
 
-////////////////////////////////////////////////
-// attach toker to a file stream or stringstream
+///////////////////////////////////////////////////
+/* attach toker to a file stream or stringstream */
 bool ConfigParseToConsole::Attach(const std::string& name, bool isFile)
 {
   if(pToker == 0)
@@ -67,10 +67,17 @@ bool ConfigParseToConsole::Attach(const std::string& name, bool isFile)
   if (!pIn->good())
     return false;
   return pToker->attach(pIn);
-}
+}
 
-////////////////////////////////////////////////
-// Here's where all the parts get assembled 
+////////////////////////////////
+/* set VERBOSE variable value. True = VERBOSE Mode On, 
+False = VERBOSE Mode Off */
+void ConfigParseToConsole::setVerbose(bool paramV) {
+	VERBOSE = paramV;
+}
+
+//////////////////////////////////////////////
+/* Here's where all the parts get assembled */
 Parser* ConfigParseToConsole::Build()
 {
   try
@@ -81,7 +88,9 @@ Parser* ConfigParseToConsole::Build()
     pSemi = new SemiExp(pToker);
     pParser = new Parser(pSemi);
     pRepo = new Repository(pToker);
-	
+
+	pRepo->setVerbose(VERBOSE);				// set VERBOSE parameter in the repository
+
 	DefaultRules(pParser);					// configure to manage scope these must come first - they return true on match so rule checking continues
 	EnumRules(pParser);						// configure to detect and act on enum block scopes  *** [ For both AST + TypeTable ]
 	ClassRules(pParser);					// configure to detect and act on classes  *** [ For both AST + TypeTable ]
@@ -98,13 +107,13 @@ Parser* ConfigParseToConsole::Build()
   }
   catch(std::exception& ex)
   {
-    std::cout << "\n\n  " << ex.what() << "\n\n";
+    std::cout << "\n\n [EXCEPTION] : " << ex.what() << "\n\n";
     return 0;
   }
 }
 
-//////////////////////////////////////////////////////////
-// Function to define rules to manage scope
+//////////////////////////////////////////////
+/* Function to define rules to manage scope */
 void ConfigParseToConsole::DefaultRules(Parser* parser)
 {
 	pBeginningOfScope = new BeginningOfScope();
@@ -115,55 +124,44 @@ void ConfigParseToConsole::DefaultRules(Parser* parser)
 	pHandlePop = new HandlePop(pRepo);
 	pEndOfScope->addAction(pHandlePop);
 	parser->addRule(pEndOfScope);
+	if (VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Scopes"; }
 }
 
-//////////////////////////////////////////////////////////
-// Function to define rules to manage Functions
+//////////////////////////////////////////////////
+/* Function to define rules to manage Functions */
 void ConfigParseToConsole::FunctionRules(Parser* parser)
 {
 	pFunctionDefinition = new FunctionDefinition;
 	pPushFunction = new PushFunction(pRepo);  // no action
 	pFunctionDefinition->addAction(pPushFunction);
-	if (VERBOSE)
-	{
-		pPrintFunction = new PrintFunction(pRepo);
-		pFunctionDefinition->addAction(pPrintFunction);
-	}
 	parser->addRule(pFunctionDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Functions"; }
 }
 
-//////////////////////////////////////////////////////////
-// Function to define rules to manage Structures
+///////////////////////////////////////////////////
+/* Function to define rules to manage Structures */
 void ConfigParseToConsole::StructureRules(Parser* parser)
 {
 	pStructureDefinition = new StructureDefinition;
 	pPushStructure = new PushStructure(pRepo);
 	pStructureDefinition->addAction(pPushStructure);
-	if (VERBOSE)
-	{
-		pPrintStructure = new PrintStructure(pRepo);
-		pStructureDefinition->addAction(pPrintStructure);
-	}
 	parser->addRule(pStructureDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Structures"; }
 }
 
 //////////////////////////////////////////////////////////
-// Function to define rules to manage Enumerators(enum)
+/* Function to define rules to manage Enumerators(enum) */
 void ConfigParseToConsole::EnumRules(Parser* parser)
 {
 	pEnumDefinition = new EnumDefinition;
 	pPushEnum = new PushEnum(pRepo);
 	pEnumDefinition->addAction(pPushEnum);
-	if (VERBOSE)
-	{
-		pPrintEnum = new PrintEnum(pRepo);
-		pEnumDefinition->addAction(pPrintEnum);
-	}
 	parser->addRule(pEnumDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Enumerators"; }
 }
 
-///////////////////////////////////////////////////////////////////
-// Function to define rules to manage Executables and Declarations
+/////////////////////////////////////////////////////////////////////
+/* Function to define rules to manage Executables and Declarations */
 void ConfigParseToConsole::ExecDeclarRules(Parser* parser)
 {
 	pDeclaration = new Declaration;
@@ -176,100 +174,81 @@ void ConfigParseToConsole::ExecDeclarRules(Parser* parser)
 	parser->addRule(pExecutable);
 }
 
-///////////////////////////////////////////////////////////////////
-// Function to define rules to manage Classes
+////////////////////////////////////////////////
+/* Function to define rules to manage Classes */
 void ConfigParseToConsole::ClassRules(Parser* parser)
 {
 	pClassDefinition = new ClassDefinition;
 	pPushClass = new PushClass(pRepo);
 	pClassDefinition->addAction(pPushClass);
-	if (VERBOSE)
-	{
-		pPrintClass = new PrintClass(pRepo);
-		pClassDefinition->addAction(pPrintClass);
-	}
 	parser->addRule(pClassDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Classes"; }
 }
 
-///////////////////////////////////////////////////////////////////
-// Function to define rules to manage Namespace
+//////////////////////////////////////////////////
+/* Function to define rules to manage Namespace */
 void ConfigParseToConsole::NamespaceRules(Parser* parser)
 {
 	pNamespaceDefinition = new NamespaceDefinition;
 	pPushNamespace = new PushNamespace(pRepo);
 	pNamespaceDefinition->addAction(pPushNamespace);
-	if (VERBOSE)
-	{
-		pPrintNamespace = new PrintNamespace(pRepo);
-		pNamespaceDefinition->addAction(pPrintNamespace);
-	}
 	parser->addRule(pNamespaceDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Namespaces"; }
 }
 
-///////////////////////////////////////////////////////////////////
-// Function to define rules to manage Conditional Scope
+//////////////////////////////////////////////////////////
+/* Function to define rules to manage Conditional Scope */
 void ConfigParseToConsole::ConditionalRules(Parser* parser)
 {
 	pConditionalDefinition = new ConditionalDefinition;
 	pPushConditional = new PushConditional(pRepo);
 	pConditionalDefinition->addAction(pPushConditional);
-	if (VERBOSE)
-	{
-		pPrintConditional = new PrintConditional(pRepo);
-		pConditionalDefinition->addAction(pPrintConditional);
-	}
 	parser->addRule(pConditionalDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Conditional Blocks"; }
 }
 
-///////////////////////////////////////////////////////////////////
-// Function to define rules to manage Try Block Scope
+////////////////////////////////////////////////////////
+/* Function to define rules to manage Try Block Scope */
 void ConfigParseToConsole::TryBlockRules(Parser* parser)
 {
 	pTryDefinition = new TryDefinition;
 	pPushTry = new PushTry(pRepo);
 	pTryDefinition->addAction(pPushTry);
-	if (VERBOSE)
+	if (false)
 	{
 		pPrintTry = new PrintTry(pRepo);
 		pTryDefinition->addAction(pPrintTry);
 	}
 	parser->addRule(pTryDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Try-Catch Blocks"; }
 }
 
-/////////////////////////////////////////////////////////////////////
-// Function to define rules to detect and act on Typedef declarations
+////////////////////////////////////////////////////////////////////////
+/* Function to define rules to detect and act on Typedef declarations */
 void ConfigParseToConsole::TypeDefDetectRules(Parser* parser) {
 	pTypeDefDefinition = new TypeDefDefinition;
 	pAddEntryTypeDef = new AddEntryTypeDef(pRepo);
 	pTypeDefDefinition->addAction(pAddEntryTypeDef);
-	if (VERBOSE)
-	{
-		pPrintDeclaration = new PrintDeclaration(pRepo);
-		pTypeDefDefinition->addAction(pPrintDeclaration);
-	}
 	parser->addRule(pTypeDefDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle TypeDef"; }
 }
 
-///////////////////////////////////////////////////////////////////
-// Function to define rules to detect and act on Alias declarations
+//////////////////////////////////////////////////////////////////////
+/* Function to define rules to detect and act on Alias declarations */
 void ConfigParseToConsole::AliasDetectRules(Parser* parser) {
 	pAliasDefinition = new AliasDefinition;
 	pAddEntryAlias = new AddEntryAlias(pRepo);
 	pAliasDefinition->addAction(pAddEntryAlias);
-	if (VERBOSE)
-	{
-		pPrintDeclaration = new PrintDeclaration(pRepo);
-		pAliasDefinition->addAction(pPrintDeclaration);
-	}
 	parser->addRule(pAliasDefinition);
+	if (pRepo->VERBOSE) { std::cout << "\n [VERBOSE] : Adding rules to handle Aliases"; }
 }
 
 #ifdef TEST_CONFIGUREPARSER
-////////////////////////////////////////////////
-// TEST STUB
 #include <queue>
 #include <string>
 
+///////////////
+/* TEST STUB */
 int main(int argc, char* argv[])
 {
   std::cout << "\n  Testing ConfigureParser module\n "

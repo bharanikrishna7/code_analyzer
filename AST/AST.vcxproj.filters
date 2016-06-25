@@ -18,9 +18,15 @@
     <ClInclude Include="AST.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utilities\Utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AST.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\Utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

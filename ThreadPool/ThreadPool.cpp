@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // Threadpool.h - Has vector of threads which will enque work items			//
-// Version :	  1.0														//
+// Version :	  1.1														//
 // Language:      Visual C++, Visual Studio 2015							//
 // Platform:      MSI GE62 2QD, Core-i7, Windows 10							//
 // Application:   Parallel Dependency Analysis								//
@@ -8,65 +8,58 @@
 //                vbchekur@syr.edu											//
 //////////////////////////////////////////////////////////////////////////////
 #include <string>
+#include <sstream>
 #include <iostream>
-#include <conio.h>
 #include "ThreadPool.h"
-#include "../Utilities/Utilities.h"
 
+/* test stub */
 #ifdef TEST_THREADPOOL
 
+#include "../Utilities/Utilities.h"
+using namespace Utilities;
+
 ////////////////////////////////////////////////////
-// demonstrate Threadpool (ProcessWorkItem class)
-using Util = Utilities::StringHelper;
+/* demonstrate Threadpool (ProcessWorkItem class) */
 using WorkResult = std::string;
 
 int main()
 {
-  Util::Title("Demonstrating Threadpool");
-
-  std::cout << "\n  main thread id = " << std::this_thread::get_id();
-
-  // Detect number of threads in computer so as to use max number of threads.
-  size_t _cpuThreads = std::thread::hardware_concurrency();
-  if (_cpuThreads == 0) { _cpuThreads = 1; }
-  std::cout << "\n  Number of Parallel Threads Queues : " << _cpuThreads << "\n";
-  ProcessWorkItem<WorkResult> processor;
-  processor.start(1);
-
-  // define 1st work item
-  WorkItem<WorkResult> wi1 = []() {
-    std::cout << "\n  working on thread " << std::this_thread::get_id();
-    return "\n  Hello from work item 1";
-  };
-  processor.doWork(&wi1);
-
-  // define 2nd work item
-  WorkItem<WorkResult> wi2 = []()
-  {
-    std::cout << "\n  working on thread " << std::this_thread::get_id();
-    size_t sum = 0;
-    for (size_t i = 0; i <= 10; ++i)
-      sum += i;
-    return "\n  work item 2 result = " + Utilities::Converter<size_t>::toString(sum);
-  };
-  processor.doWork(&wi2);
-
-  // define 3rd work item
-  WorkItem<WorkResult> wi3 = []() {
-	  std::cout << "\n  working on thread " << std::this_thread::get_id();
-	  return "This is work item #3";
-  };
-  processor.doWork(&wi3);
-
-  // the following calls to result() block until results are enqueued
-  std::cout << "\n  " << processor.result();
-  std::cout << "\n  " << processor.result();
-  std::cout << "\n  " << processor.result();
-  
-  processor.doWork(nullptr);
-  // wait for child thread to complete
-  std::cout << "\n\n  ";
-  processor.wait();
+	StringHelper::Title("Testing ThreadPool Class", '=');
+	// Number of Threads to spawn
+	int objects = 10;
+	std::cout << "\n Main thread id = " << std::this_thread::get_id();
+	std::cout << "\n Number of Threads to Spawn = " << objects;
+	Timer timer;
+	timer.StartClock();
+	// Declare and Initialize ThreadPool
+	ThreadPool<WorkResult> processor;
+	processor.setDebugger(true);
+	processor.init();
+	// Bunch of Work Items (To keep track of Spawned Threads)
+	std::vector<WorkItem<WorkResult>> _WorkItems;
+	// Define the Work Item then push it back to WorkItems Vector
+	for (int i = 0; i < objects; i++) {
+		_WorkItems.push_back([=]() {
+			auto tid = std::this_thread::get_id();
+			std::stringstream ss;
+			ss << tid;
+			std::cout << "\n working on thread : " << i;
+			return "Hello from work item : " + ss.str();
+		});
+	}
+	// Enqueue the WorkItems to the ThreadPool
+	for (int i = 0; i < objects; i++) {
+		processor.doWork(&_WorkItems[i]);
+	}
+	// Print the results of the WorkItem(s) on Console
+	for (int i = 0; i < objects; i++) {
+		std::cout << "\n " << processor.result();
+	}
+	// Add a nullptr to ThreadPool to initialize termination sequence
+	processor.doWork(nullptr);
+	// wait for child thread(s) to complete
+	processor.wait();
+	std::cout << "\n\n Execution Time : " << timer.StopClock() << " ms\n ";
+	system("pause");
 }
-
 #endif // TEST_THREADPOOL

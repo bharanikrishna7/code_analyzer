@@ -61,16 +61,16 @@
 #include <string>
 #include <sstream>
 #include "Parser.h"
-#include "../SemiExp/itokcollection.h"
-#include "../ScopeStack/ScopeStack.h"
-#include "../Tokenizer/Tokenizer.h"
-#include "../SemiExp/SemiExp.h"
+#include "TypeTable.h"
+#include "ScopeStack.h"
 #include "../AST/AST.h"
-#include "../TypeTable/TypeTable.h"
+#include "../SemiExpression/ITokCollection.h"
+#include "../Tokenizer/Tokenizer.h"
+#include "../SemiExpression/SemiExp.h"
 
-///////////////////////////////////////////////////////////////
-// Repository instance is used to share resources
-// among all actions.
+/////////////////////////////////////////////////
+/* Repository instance is used to share resources 
+ among all actions */
 /*
  * ToDo:
  * Make Type Table generation process not depend on other projects
@@ -79,19 +79,20 @@
  */
 class Repository  // application specific
 {
-  ScopeStack<node*> stack;
+  ScopeStack<element*> stack;
   Scanner::Toker* p_Toker;
   AST *tree;
   TTable *table;
   static Repository* instance;
 public:
-  Repository(Scanner::Toker* pToker)
+	bool VERBOSE = false;
+	Repository(Scanner::Toker* pToker)
   {
 	instance = this;
 	p_Toker = pToker;
 	tree = new AST();
 	table = new TTable();
-	node* root = new node;
+	element* root = new element;
 	root->name = "global";
 	root->type = "namespace";
 	root->lineCountBegin = 0;
@@ -108,7 +109,7 @@ public:
   {
 	  return instance;
   }
-  ScopeStack<node*>& scopeStack()
+  ScopeStack<element*>& scopeStack()
   {
     return stack;
   }
@@ -120,10 +121,13 @@ public:
   {
     return (size_t)(p_Toker->currentLineCount());
   }
+  void setVerbose(bool paramV) {
+	  VERBOSE = paramV;
+  }
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect beginning of anonymous scope
+/////////////////////////////////////////////////
+/* rule to detect beginning of anonymous scope */
 class BeginningOfScope : public IRule
 {
 public:
@@ -138,8 +142,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to handle scope stack at end of scope
+//////////////////////////////////////////////////
+/* action to handle scope stack at end of scope */
 class HandlePush : public IAction
 {
   Repository* p_Repos;
@@ -151,7 +155,7 @@ public:
   void doAction(ITokCollection*& pTc)
   {
     //std::cout << "\n--BeginningOfScope rule";
-    node* elem = new node;
+    element* elem = new element;
     elem->type = "unknown";
     elem->name = "anonymous";
     elem->lineCountBegin = p_Repos->lineCount();
@@ -160,8 +164,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect end of scope
+/////////////////////////////////
+/* rule to detect end of scope */
 class EndOfScope : public IRule
 {
 public:
@@ -176,8 +180,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to handle scope stack at end of scope
+//////////////////////////////////////////////////
+/* action to handle scope stack at end of scope */
 class HandlePop : public IAction
 {
   Repository* p_Repos;
@@ -190,28 +194,27 @@ public:
   {
     if(p_Repos->scopeStack().size() == 0)
       return;
-    node* elem = p_Repos->scopeStack().pop();
+    element* elem = p_Repos->scopeStack().pop();
 	elem->lineCountEnd = p_Repos->lineCount();
 	elem->lineCount = elem->lineCountEnd - elem->lineCountBegin + 1;
 	elem->complexity = p_Repos->getTree()->getComplexity(elem);
 	// For correct namespace assignment to the type table elements
 	if (elem->type == "namespace") { p_Repos->getTable()->addEntry("EOS", "namespace EOS"); }
 
-	/*
-	// DEBUG BLOCK - To visualize how the semi expressions are being read by categorized using the rules
-	if(elem->type == "function" || elem->type == "structure" || elem->type == "class" || elem->type == "namespace" || elem->type == "conditional")
-    {
-	  std::cout << "\n  Type : " << elem->type << ", Name : " << elem->name << ", lineScopeBegin = " << elem->lineCountBegin;
-	  std::cout << ", lineScopeEnd = " << elem->lineCountEnd << ", ScopeSize = " << elem->lineCount;
-      std::cout << "\n";
-    }
-	// END BLOCK
-	*/
+	if (p_Repos->VERBOSE) {
+		if (elem->type == "function" || elem->type == "function (member)" || elem->type == "structure" ||
+			elem->type == "class" || elem->type == "namespace" || elem->type == "conditional" ||
+			elem->type == "enum" || elem->type == "enum (strong)")
+		{
+			std::cout << "\n [VERBOSE] : End of Scope \"" << elem->name << "\" Scope begin Line = " << elem->lineCountBegin;
+			std::cout << ", Scope end Line = " << elem->lineCountEnd << ", Scope Size = " << elem->lineCount;
+		}
+	}
   }
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect preprocessor statements
+////////////////////////////////////////////
+/* rule to detect preprocessor statements */
 class PreprocStatement : public IRule
 {
 public:
@@ -226,8 +229,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to print preprocessor statement to console
+/////////////////////////////////////////////////////////////////////
+/* action to print preprocessor statement to console (Depreceated) */
 class PrintPreproc : public IAction
 {
 public:
@@ -237,8 +240,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect structure definitions
+//////////////////////////////////////////
+/* rule to detect structure definitions */
 class StructureDefinition : public IRule
 {
 public:
@@ -254,8 +257,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect enum definitions
+/////////////////////////////////////
+/* rule to detect enum definitions */
 class EnumDefinition : public IRule
 {
 public:
@@ -271,8 +274,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect namespace definitions
+//////////////////////////////////////////
+/* rule to detect namespace definitions */
 class NamespaceDefinition : public IRule
 {
 public:
@@ -288,8 +291,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect class definitions
+//////////////////////////////////////
+/* rule to detect class definitions */
 class ClassDefinition : public IRule
 {
 public:
@@ -304,8 +307,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect Conditional Scope definitions
+//////////////////////////////////////////////////
+/* rule to detect Conditional Scope definitions */
 class ConditionalDefinition : public IRule
 {
 public:
@@ -334,8 +337,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect Try blocks definitions
+///////////////////////////////////////////
+/* rule to detect Try blocks definitions */
 class TryDefinition : public IRule
 {
 public:
@@ -351,8 +354,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect typedef (not associated with AST)
+//////////////////////////////////////////////////////
+/* rule to detect typedef (not associated with AST) */
 class TypeDefDefinition : public IRule
 {
 public:
@@ -368,8 +371,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect aliases (not associated with AST)
+//////////////////////////////////////////////////////
+/* rule to detect aliases (not associated with AST) */
 class AliasDefinition : public IRule
 {
 public:
@@ -385,8 +388,8 @@ public:
 	}
 };
 
-//////////////////////////////////////////////////////////////////////////////////
-// action to add typedef declarations to the Typetable (not associated with AST)
+///////////////////////////////////////////////////////////////////////////////////
+/* action to add typedef declarations to the Typetable (not associated with AST) */
 class AddEntryTypeDef : public IAction
 {
 	Repository* p_Repos;
@@ -400,6 +403,7 @@ public:
 		if (pTc->find(",") < pTc->length()) {
 			// Multiple declarations are present i.e something like - typedef int x,y;
 			for (size_t index = pTc->find(";") - 1; index > 0; index--) {
+				if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Typedef \"" << (*pTc)[index] << "\" to Partial Type Table"; }
 				p_Repos->getTable()->addEntry((*pTc)[index], "typedef");
 				index--;
 				if ((*pTc)[index] != ",")
@@ -413,8 +417,8 @@ public:
 	}
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// action to add alias declarations to the Typetable (not associated with AST)
+/////////////////////////////////////////////////////////////////////////////////
+/* action to add alias declarations to the Typetable (not associated with AST) */
 class AddEntryAlias : public IAction
 {
 	Repository* p_Repos;
@@ -425,12 +429,13 @@ public:
 	}
 	void doAction(ITokCollection*& pTc)
 	{
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Alias \"" << (*pTc)[pTc->find("using") + 1] << "\" to Partial Type Table"; }
 		p_Repos->getTable()->addEntry((*pTc)[pTc->find("using") + 1], "alias");
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to push Try blocks scope name onto ScopeStack
+//////////////////////////////////////////////////////////
+/* action to push Try blocks scope name onto ScopeStack */
 class PushTry : public IAction
 {
 	Repository* p_Repos;
@@ -442,21 +447,22 @@ public:
 	void doAction(ITokCollection*& pTc)
 	{
 		// pop anonymous scope
-		node* dElem = p_Repos->scopeStack().pop();
+		element* dElem = p_Repos->scopeStack().pop();
 		p_Repos->scopeStack().top()->deleteChild(p_Repos->scopeStack().top(), dElem);
 
 		// push try scope
-		node* elem = new node;
+		element* elem = new element;
 		elem->type = "conditional";
 		elem->name = "try";
 		elem->lineCountBegin = p_Repos->lineCount();
 		p_Repos->scopeStack().top()->addChild(elem);
 		p_Repos->scopeStack().push(elem);
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Conditional Block of Type \"Try-Catch\" to Scope Stack"; }
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to push conditional scope name onto ScopeStack
+///////////////////////////////////////////////////////////
+/* action to push conditional scope name onto ScopeStack */
 class PushConditional : public IAction
 {
 	Repository* p_Repos;
@@ -468,23 +474,24 @@ public:
 	void doAction(ITokCollection*& pTc)
 	{
 		// pop anonymous scope
-		node* dElem = p_Repos->scopeStack().pop();
+		element* dElem = p_Repos->scopeStack().pop();
 		p_Repos->scopeStack().top()->deleteChild(p_Repos->scopeStack().top(), dElem);
 
 		// push conditional scope
 		std::string name = (*pTc)[pTc->find("(") - 1];
-		node* elem = new node;
+		element* elem = new element;
 		elem->type = "conditional";
 		elem->name = name;
 		elem->lineCountBegin = p_Repos->lineCount();
 		p_Repos->scopeStack().top()->addChild(elem);
 		p_Repos->scopeStack().push(elem);
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Conditional Block of Type \"" << name << "\" to Scope Stack"; }
 	}
 };
 
-//////////////////////////////////////////////////////////////////////
-// action to send semi-expression that starts a Try scope def
-// to console
+////////////////////////////////////////////////////////////////
+/* action to send semi-expression that starts a Try scope def 
+to console (Depreceated) */
 class PrintTry : public IAction
 {
 	Repository* p_Repos;
@@ -500,7 +507,8 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////
-// action to send semi-expression that defines a typedef/alias to console
+/* action to send semi-expression that defines a typedef/alias to console 
+(Depreceated) */
 class PrintDeclaration : public IAction
 {
 	Repository* p_Repos;
@@ -511,13 +519,13 @@ public:
 	}
 	void doAction(ITokCollection*& pTc)
 	{
-		std::cout << "\n  Followinf Declaration is added to the TypeTable:" << pTc->show().c_str();
+		std::cout << "\n  Following Declaration is added to the TypeTable:" << pTc->show().c_str();
 	}
 };
 
 //////////////////////////////////////////////////////////////////////
-// action to send semi-expression that starts a conditional scope def
-// to console
+/* action to send semi-expression that starts a conditional scope def 
+to console (Depreceated) */
 class PrintConditional : public IAction
 {
 	Repository* p_Repos;
@@ -532,8 +540,8 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect function definitions
+/////////////////////////////////////////
+/* rule to detect function definitions */
 class FunctionDefinition : public IRule
 {
 public:
@@ -562,8 +570,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to push structure name onto ScopeStack
+///////////////////////////////////////////////////
+/* action to push structure name onto ScopeStack */
 class PushStructure : public IAction
 {
 	Repository* p_Repos;
@@ -575,23 +583,24 @@ public:
 	void doAction(ITokCollection*& pTc)
 	{
 		// pop anonymous scope
-		node* dElem = p_Repos->scopeStack().pop();
+		element* dElem = p_Repos->scopeStack().pop();
 		p_Repos->scopeStack().top()->deleteChild(p_Repos->scopeStack().top(), dElem);
 
 		// push structure scope
 		std::string name = (*pTc)[pTc->find("struct") + 1];
-		node* elem = new node;
+		element* elem = new element;
 		elem->type = "structure";
 		elem->name = name;
 		elem->lineCountBegin = p_Repos->lineCount();
 		p_Repos->scopeStack().top()->addChild(elem);
 		p_Repos->scopeStack().push(elem);
 		p_Repos->getTable()->addEntry(elem->name, elem->type);
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Structure \"" << name << "\" to Scope Stack"; }
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to push enum name onto ScopeStack
+//////////////////////////////////////////////
+/* action to push enum name onto ScopeStack */
 class PushEnum : public IAction
 {
 	Repository* p_Repos;
@@ -609,9 +618,9 @@ public:
 	void doAction(ITokCollection*& pTc)
 	{
 		// pop anonymous scope
-		node* dElem = p_Repos->scopeStack().pop();
+		element* dElem = p_Repos->scopeStack().pop();
 		p_Repos->scopeStack().top()->deleteChild(p_Repos->scopeStack().top(), dElem);
-		node* elem = new node;
+		element* elem = new element;
 		std::string name;
 		if(pTc->find("class") < pTc->length()) { 
 			name = (*pTc)[pTc->find("enum") + 2];
@@ -629,11 +638,12 @@ public:
 		p_Repos->scopeStack().top()->addChild(elem);
 		p_Repos->scopeStack().push(elem);
 		p_Repos->getTable()->addEntry(elem->name, elem->type);
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Enumerator \"" << name << "\" to Scope Stack"; }
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to push namespace name onto ScopeStack
+///////////////////////////////////////////////////
+/* action to push namespace name onto ScopeStack */
 class PushNamespace : public IAction
 {
 	Repository* p_Repos;
@@ -645,23 +655,24 @@ public:
 	void doAction(ITokCollection*& pTc)
 	{
 		// pop anonymous scope
-		node* dElem = p_Repos->scopeStack().pop();
+		element* dElem = p_Repos->scopeStack().pop();
 		p_Repos->scopeStack().top()->deleteChild(p_Repos->scopeStack().top(), dElem);
 
 		// push namespace scope
 		std::string name = (*pTc)[pTc->find("namespace") + 1];
-		node* elem = new node;
+		element* elem = new element;
 		elem->type = "namespace";
 		elem->name = name;
 		elem->lineCountBegin = p_Repos->lineCount();
 		p_Repos->scopeStack().top()->addChild(elem);
 		p_Repos->scopeStack().push(elem);
 		p_Repos->getTable()->addEntry(elem->name, elem->type, "-");
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Namespace \"" << name << "\" to Scope Stack"; }
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to push class name onto ScopeStack
+///////////////////////////////////////////////
+/* action to push class name onto ScopeStack */
 class PushClass : public IAction
 {
 	Repository* p_Repos;
@@ -673,23 +684,24 @@ public:
 	void doAction(ITokCollection*& pTc)
 	{
 		// pop anonymous scope
-		node* dElem = p_Repos->scopeStack().pop();
+		element* dElem = p_Repos->scopeStack().pop();
 		p_Repos->scopeStack().top()->deleteChild(p_Repos->scopeStack().top(), dElem);
 
 		// push class scope
 		std::string name = (*pTc)[pTc->find("class") + 1];
-		node* elem = new node;
+		element* elem = new element;
 		elem->type = "class";
 		elem->name = name;
 		elem->lineCountBegin = p_Repos->lineCount();
 		p_Repos->scopeStack().top()->addChild(elem);
 		p_Repos->scopeStack().push(elem);
 		p_Repos->getTable()->addEntry(elem->name, elem->type);
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Class \"" << name << "\" to Scope Stack"; }
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to push function name onto ScopeStack
+//////////////////////////////////////////////////
+/* action to push function name onto ScopeStack */
 class PushFunction : public IAction
 {
   Repository* p_Repos;
@@ -697,29 +709,44 @@ public:
   PushFunction(Repository* pRepos) {
     p_Repos = pRepos;
   }
+  bool isLambda(const std::string& tok) {
+	  if (tok == "]")
+		  return true;
+	  return false;
+  }
   void doAction(ITokCollection*& pTc) {
     // pop anonymous scope
-	node* dElem = p_Repos->scopeStack().pop();
+
+	element* dElem = p_Repos->scopeStack().pop();
 	p_Repos->scopeStack().top()->deleteChild(p_Repos->scopeStack().top(), dElem);
 
     // push function scope
-    std::string name = (*pTc)[pTc->find("(") - 1];
-    node* elem = new node;
+	element* elem = new element;
+	std::string name = (*pTc)[pTc->find("(") - 1];
 	elem->type = "function";
-    elem->name = name;
+	
+	if (isLambda(name)) {
+		name = "(Lambda)";
+	}
+
+	elem->name = name;
 	elem->lineCountBegin = p_Repos->lineCount();
 	p_Repos->scopeStack().top()->addChild(elem);
 	p_Repos->scopeStack().push(elem);
-	if (pTc->find("::") < pTc->length())
+	if (pTc->find("::") < pTc->length()) {
 		p_Repos->getTable()->addEntry(elem->name, "function (member)");
-	else
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Function(member) \"" << name << "\" to Scope Stack"; }
+	}
+	else {
 		p_Repos->getTable()->addEntry(elem->name, "function");
+		if (p_Repos->VERBOSE) { std::cout << "\n [VERBOSE] : Adding Function \"" << name << "\" to Scope Stack"; }
+	}
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to send semi-expression that starts a class def
-// to console
+//////////////////////////////////////////////////////////
+/* action to print semi-expression that starts a class def 
+to console (Depreceated) */
 class PrintClass : public IAction
 {
 	Repository* p_Repos;
@@ -735,9 +762,9 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to send semi-expression that starts a class def
-// to console
+//////////////////////////////////////////////////////////
+/* action to print semi-expression that starts a class def 
+to console (Depreceated) */
 class PrintNamespace : public IAction
 {
 	Repository* p_Repos;
@@ -753,9 +780,9 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to send semi-expression that starts a structure def
-// to console
+//////////////////////////////////////////////////////////////
+/* action to print semi-expression that starts a structure def 
+to console (Depreceated) */
 class PrintStructure : public IAction
 {
 	Repository* p_Repos;
@@ -771,9 +798,9 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to send semi-expression that starts a enum def
-// to console
+/////////////////////////////////////////////////////////
+/* action to send semi-expression that starts a enum def 
+to console (Depreceated) */
 class PrintEnum : public IAction
 {
 	Repository* p_Repos;
@@ -789,9 +816,9 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////
-// action to send semi-expression that starts a function def
-// to console
+/////////////////////////////////////////////////////////////
+/* action to send semi-expression that starts a function def 
+to console (Depreceated) */
 class PrintFunction : public IAction
 {
   Repository* p_Repos;
@@ -803,12 +830,12 @@ public:
   void doAction(ITokCollection*& pTc)
   {
 	  std::cout << "\n  FuncDef: " << pTc->show().c_str();
-	  std::cout << "  Function added to the TypeTable\n";
+	  std::cout << " Function added to the TypeTable\n";
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to send signature of a function def to console
+///////////////////////////////////////////////////////////
+// action to send signature of a function def to console */
 class PrettyPrintFunction : public IAction
 {
 public:
@@ -825,8 +852,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect declaration
+////////////////////////////////
+/* rule to detect declaration */
 class Declaration : public IRule          // declar ends in semicolon
 {                                         // has type, name, modifiers &
 public:                                   // initializers.  So eliminate
@@ -922,8 +949,8 @@ public:                                   // initializers.  So eliminate
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to show declaration
+////////////////////////////////
+/* action to show declaration */
 class ShowDeclaration : public IAction
 {
 public:
@@ -939,8 +966,8 @@ public:
   }
 };
 
-///////////////////////////////////////////////////////////////
-// rule to detect executable
+///////////////////////////////
+/* rule to detect executable */
 class Executable : public IRule           // declar ends in semicolon
 {                                         // has type, name, modifiers &
 public:                                   // initializers.  So eliminate
@@ -1036,8 +1063,8 @@ public:                                   // initializers.  So eliminate
   }
 };
 
-///////////////////////////////////////////////////////////////
-// action to show executable
+///////////////////////////////
+/* action to show executable */
 class ShowExecutable : public IAction
 {
 public:
