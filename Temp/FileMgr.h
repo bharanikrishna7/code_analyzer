@@ -73,9 +73,6 @@ public:
   /* Search for files with specified pattern in the basedir and subdirs */
   void search()
   {
-	  if (path_[path_.length() - 1] == '\\')				// it will remove the trailing '\' in the provided file path
-		  path_ = path_.substr(0, path_.length() - 1);
-
 	  if (VERBOSE) {
 		  std::cout << "\n Searching for files in Path :" << path_;
 		  std::cout << "\n\n File List";
@@ -110,7 +107,7 @@ public:
     {
       if (d == "." || d == "..")
         continue;
-      std::string dpath = fpath + "\\" + d;  
+      std::string dpath = fpath + d + "\\";
       find(dpath);
     }
   }
