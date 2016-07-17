@@ -28,7 +28,7 @@
 *
 * Required files:
 * ---------------
-* Cpp11-ConcurrentQueue.h, Cpp11-ConcurrentQueue.cpp, Threadpool.h, Threadpool.cpp, Utilities.h, Utilities.cpp
+* ConcurrentQueue.h, Threadpool.h, Threadpool.cpp, Utilities.h, Utilities.cpp
 *
 * Build command:
 * --------------
@@ -43,6 +43,7 @@
 *   depend on the number of threads the Hardware can simultaneously
 *   run (number of multi threads). If unable to determine then only
 *   one BlockingQueue is spawned.
+* - Provided an option for manually setting the number of task queues.
 * - Updated VERBOSE Mode, to show more information.
 * ver 1.0 : 6 April 16
 * - first release

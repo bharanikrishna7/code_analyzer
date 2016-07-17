@@ -48,9 +48,6 @@ void CodeAnalyzer::setVerbose(bool paramV) {
   files in _files.
 */
 void CodeAnalyzer::GenerateFinalTypeTable() {
-	ThreadPool<std::vector<Entry>*> processor;
-	processor.init();
-
 	// Unfortunately Unable to use ThreadPool here.
 	for (auto file : _files) {
 		AnalyzeSingleFile asf;
@@ -61,8 +58,7 @@ void CodeAnalyzer::GenerateFinalTypeTable() {
 	}
 }
 
-/* Method to append the processed Partial TypeTable to Final TypeTable
-*/
+/* Method to append the processed Partial TypeTable to Final TypeTable */
 void CodeAnalyzer::AppendTypeTable(std::vector<Entry>* pTT) {
 	for (size_t i = 0; i < pTT->size(); i++) {
 		bool notAlnum = true;
@@ -148,7 +144,7 @@ void CodeAnalyzer::DependencyAnalysis() {
 		processor.doWork(wi);
 	}
 
-	for (size_t i = 0; i < _files.size(); i++) {
+	for (size_t index = 0; index < _files.size(); index++) {
 		_FinalResults.push_back(processor.result());
 	}
 	processor.doWork(nullptr);
@@ -287,7 +283,7 @@ int main() {
 	StringHelper::Title("Testing Code Analyzer", '=');
 	Timer timer;
 	timer.StartClock();
-	ShowSingleResults = false;
+	ShowSingleResults = true;
 	SetThreadDebugger = true;
 	std::vector<std::string> patterns = { "*.cpp", "*.h" };
 	CodeAnalyzer ca;

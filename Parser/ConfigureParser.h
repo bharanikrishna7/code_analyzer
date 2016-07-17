@@ -51,7 +51,6 @@
  * ver 1.1 : 1 April 2016
  * - Moved VERBOSE to public
  * - Added rules to detect enum, alias and typedef
- *
  * ver 1.0 : 17 March 16
  * - first release
  *

@@ -84,8 +84,8 @@ void AnalyzeSingleFile::setTypeTableFields(Repository* repo, std::string fileSpe
 	repo->getTable()->setNameSpace();
 }
 
-////////////////////////////////////////
-/* Will return the partial type table */
+/////////////////////////////////////////////////////
+/* Will return the partial type table by reference */
 std::vector<Entry>* AnalyzeSingleFile::getTable() {
 	return &partialTT;
 }

@@ -34,7 +34,7 @@
  *  ---------------
  *  Parser.h, Parser.cpp, ScopeStack.h, ScopeStack.cpp,
  *  ActionsAndRules.h, ActionsAndRules.cpp, ConfigureParser.cpp,
- *  ItokCollection.h, SemiExpression.h, SemiExpression.cpp, tokenizer.h, tokenizer.cpp
+ *  ItokCollection.h, SemiExpression.h, SemiExpression.cpp, Tokenizer.h, Tokenizer.cpp
  * 
  *  Build commands:
  *  ---------------
@@ -44,7 +44,6 @@
  *  --------------------
  *  ver 1.0 : 17 March 2016
  *  - first release
- *
  *  ver 2.0 : 1 April 2016
  *  - Added Type Table creation along with AST
  *  - Added rules to detect enum, function type (member / global), typedef, alias

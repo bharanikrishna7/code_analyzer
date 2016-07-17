@@ -67,18 +67,18 @@
  *
  * Maintenance History:
  * ====================
- * ver 2.2 : 23 Feb 13
- * - fixed bug in Path::getExt(...) discovered by Yang Zhou and Kevin Kong
+ * ver 1.0 : 31 Jan 09
+ * - first release
+ * ver 2.0 : 04 Jun 12
+ * - made a few small changes to provide same interface as
+ *   Linux version.
  * ver 2.1 : 07 Jun 12
  * - moved FileSystemSearch to cpp file to make private
  * - added bool withExt parameter to Path::getName
  * - made Directory's getCurrentDirectory and setCurrentDirectory static
  * - added exists, create, and remove to Directory class
- * ver 2.0 : 04 Jun 12
- * - made a few small changes to provide same interface as 
- *   Linux version.
- * ver 1.0 : 31 Jan 09
- * - first release
+ * ver 2.2 : 23 Feb 13
+ * - fixed bug in Path::getExt(...) discovered by Yang Zhou and Kevin Kong
  */
 
 #include <string>

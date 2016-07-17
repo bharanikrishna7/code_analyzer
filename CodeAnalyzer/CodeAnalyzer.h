@@ -45,11 +45,10 @@
 *
 * Required files:
 * ---------------
-* FileSystem.h, FileSystem.cpp, GenTypeTable.h, GenTypeTable.cpp, ActionsAndRules.h, ActionsAndRules.cpp,
-* ConfigureParser.h, ConfigureParser.cpp, Utilities.h, Utilities.cpp, Tokenizer.h, Tokenizer.cpp,
-* Metrics.h, Metrics.cpp, Parser.h, Parser.cpp, AST.h, AST.cpp, itokcollection.h, SemiExp.h, SemiExp.cpp,
-* TypeTable.h, TypeTable.cpp, DependencyAnalysis.h, DependencyAnalysis.cpp, ParallelDependencyAnalysis.h,
-* ParallelDependencyAnalysis.cpp, Threadpool.h, Threadpool.cpp, Task.h, Task.cpp
+* FileSystem.h, FileSystem.cpp, ActionsAndRules.h, ActionsAndRules.cpp, ConfigureParser.h, ConfigureParser.cpp,
+* Utilities.h, Utilities.cpp, Tokenizer.h, Tokenizer.cpp, Parser.h, Parser.cpp, AST.h, AST.cpp, itokcollection.h, 
+* SemiExp.h, SemiExp.cpp, TypeTable.h, TypeTable.cpp, Threadpool.h, Threadpool.cpp, ConcurrentQueue.h, 
+* ConcurrentQueue.cpp, CodeAnalyzer.h, CodeAnalyzer.cpp
 *
 * Build command:
 * --------------

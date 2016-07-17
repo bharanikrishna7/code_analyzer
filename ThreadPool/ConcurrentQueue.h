@@ -22,7 +22,7 @@
 *
 * Build Process:
 * --------------
-* devenv Cpp11-BlockingQueue.sln /rebuild debug
+* devenv ConcurrentQueue.sln /rebuild debug
 *
 * Maintenance History:
 * --------------------

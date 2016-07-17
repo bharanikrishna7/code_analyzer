@@ -31,8 +31,8 @@
 * - Updated Test Stub to be easier to understand.
 * - Removed functions : title & test stub display helpers.
 *	> From now on use Title instead of title function.
-*	> Test Stub display helper functions removing will have
-*	  no effect on other dependant files.
+*	> Test Stub helper functions are now member functions 
+*	  (This has no impact on Utilities class)
 */
 #include <ctime>
 #include <string>

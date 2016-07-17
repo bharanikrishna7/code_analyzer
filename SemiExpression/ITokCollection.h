@@ -22,7 +22,6 @@
 *  --------------------
 *  ver 1.0 : 8 Feb 16
 *  - first release
-*
 */
 
 #include <string> 
